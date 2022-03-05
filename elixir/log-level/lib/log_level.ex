@@ -1,32 +1,24 @@
 defmodule LogLevel do
-  @labels %{
-    0 => :trace,
-    1 => :debug,
-    2 => :info,
-    3 => :warning,
-    4 => :error,
-    5 => :fatal
-  }
-
-  @supported_in_legacy 1..4
-
-  def to_label(level, false),
-    do: Map.get(@labels, level, :unknown)
-
-  def to_label(level, true) when level in @supported_in_legacy,
-    do: Map.get(@labels, level)
-
-  def to_label(_level, true),
-    do: :unknown
-
-  def alert_recipient(level, legacy?) do
-    level
-    |> to_label(legacy?)
-    |> alert(legacy?)
+  def to_label(level, legacy?) do
+    case {level, legacy?} do
+      {0, false} -> :trace
+      {1, _} -> :debug
+      {2, _} -> :info
+      {3, _} -> :warning
+      {4, _} -> :error
+      {5, false} -> :fatal
+      _ -> :unknown
+    end
   end
 
-  defp alert(label, _legacy?) when label in [:error, :fatal], do: :ops
-  defp alert(:unknown, true), do: :dev1
-  defp alert(:unknown, false), do: :dev2
-  defp alert(_label, _legacy?), do: false
+  def alert_recipient(level, legacy?) do
+    label = to_label(level, legacy?)
+
+    cond do
+      label in [:error, :fatal] -> :ops
+      label == :unknown and legacy? -> :dev1
+      label == :unknown -> :dev2
+      true -> false
+    end
+  end
 end
