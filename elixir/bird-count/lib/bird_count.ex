@@ -1,4 +1,6 @@
 defmodule BirdCount do
+  @busy_day_threshold 5
+
   def today([]), do: nil
   def today([today | _other]), do: today
 
@@ -13,6 +15,6 @@ defmodule BirdCount do
   def total([today | other]), do: today + total(other)
 
   def busy_days([]), do: 0
-  def busy_days([today | other]) when today >= 5, do: 1 + busy_days(other)
+  def busy_days([today | other]) when today >= @busy_day_threshold, do: 1 + busy_days(other)
   def busy_days([_today | other]), do: busy_days(other)
 end
