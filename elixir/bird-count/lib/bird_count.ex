@@ -5,9 +5,14 @@ defmodule BirdCount do
   def increment_day_count([]), do: [1]
   def increment_day_count([today | other]), do: [today + 1 | other]
 
-  def has_day_without_birds?(counts), do: Enum.any?(counts, fn c -> c == 0 end)
+  def has_day_without_birds?([]), do: false
+  def has_day_without_birds?([0 | _]), do: true
+  def has_day_without_birds?([_today | other]), do: has_day_without_birds?(other)
 
-  def total(counts), do: Enum.sum(counts)
+  def total([]), do: 0
+  def total([today | other]), do: today + total(other)
 
-  def busy_days(counts), do: Enum.count(counts, fn c -> c > 4 end)
+  def busy_days([]), do: 0
+  def busy_days([today | other]) when today >= 5, do: 1 + busy_days(other)
+  def busy_days([_today | other]), do: busy_days(other)
 end
